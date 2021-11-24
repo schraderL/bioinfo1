@@ -54,3 +54,6 @@ packrat/src/
 
 # ignore tmp folder(s)
 tmp/
+
+#ipynb generated filed
+.ipynb_checkpoints
