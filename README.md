@@ -11,6 +11,12 @@ To start, click on the following badge and open an interactive jupyter notebook,
 
 
 Once the server has started, open the file `Plotting.with.R.ipynb` from the left list of files and follow the instructions in it.
+
+ <img src="./images/folderStructure.png" width="200">
+
+If you can't see any files, try the refresh button: 
+
+<img src="./images/refresh.png" width="200">
+
 And don't worry, you can't break anything.
 
-![Folder Structure](./images/folderStructure.png | width=100)
