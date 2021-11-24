@@ -49,3 +49,6 @@ packrat/src/
 
 # allow rendered html files in docs
 !docs/**/*.html
+
+# ignore tmp folder(s)
+tmp/
