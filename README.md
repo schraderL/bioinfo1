@@ -10,4 +10,4 @@ To start, click on the following badge and open an interactive jupyter notebook,
 <!-- - Launch in RStudio: [![Binder](http://mybinder.org/badge.svg)](https://mybinder.org/v2/gh/schraderL/bioinfo1/master?urlpath=rstudio) -->
 
 
-Once the server has started, click on the file `Plotting.with.R.ipynb` and follow it. 
+Once the server has started, open the file `Plotting.with.R.ipynb` and follow it. And don't worry, you can't break anything.
