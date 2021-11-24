@@ -8,3 +8,6 @@ As a final part of this bioinformatic practical, you will run a short `R` script
 To start, click on the following badge and open an interactive jupyter notebook, which allows you to run R code on a remote server:
 [![Binder](http://mybinder.org/badge.svg)](https://mybinder.org/v2/gh/schraderL/bioinfo1/master?urlpath=lab)
 <!-- - Launch in RStudio: [![Binder](http://mybinder.org/badge.svg)](https://mybinder.org/v2/gh/schraderL/bioinfo1/master?urlpath=rstudio) -->
+
+
+Once the server has started, click on the file `Plotting.with.R.ipynb` and follow it. 
