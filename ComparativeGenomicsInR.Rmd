@@ -1,0 +1,496 @@
+---
+title: "R Notebook"
+output: html_document
+---
+
+<script>
+function buildQuiz(myq, qc){
+  const output = [];
+
+  myq.forEach(
+    (currentQuestion, questionNumber) => {
+      const answers = [];
+      for(letter in currentQuestion.answers){
+        answers.push(
+          `<label>
+            <input type="radio" name="question${questionNumber}" value="${letter}">
+            ${letter} :
+            ${currentQuestion.answers[letter]}
+          </label><br/>`
+        );
+      }
+      output.push(
+        `<div class="question"> ${currentQuestion.question} </div>
+        <div class="answers"> ${answers.join('')} </div><br/>`
+      );
+    }
+  );
+  qc.innerHTML = output.join('');
+}
+
+function showResults(myq, qc, rc){
+  const answerContainers = qc.querySelectorAll('.answers');
+  let numCorrect = 0;
+
+  myq.forEach( (currentQuestion, questionNumber) => {
+    const answerContainer = answerContainers[questionNumber];
+    const selector = `input[name=question${questionNumber}]:checked`;
+    const userAnswer = (answerContainer.querySelector(selector) || {}).value;
+
+    if(userAnswer === currentQuestion.correctAnswer){
+      numCorrect++;
+      answerContainers[questionNumber].style.color = 'lightgreen';
+    } else {
+      answerContainers[questionNumber].style.color = 'red';
+    }
+  });
+
+  rc.innerHTML = `${numCorrect} out of ${myq.length}`;
+}
+</script>
+
+
+# Introduction
+In this R Notebook, we will analyze homology data for a protein associated with human insulin. We will use various bioinformatics tools and R for our analysis. Follow the instructions as outlined below and complete the quizzes based on the outputs generated.
+
+## Step 1: Protein Sequence BLAST Search
+Your first task is to identify the protein that the following sequence represents. 
+```
+>query
+MALWMRLLPLLALLALWGPDPAAAFVNQHLCGSHLVEALYLVCGERGFFYTPKTRREAEDLQVGQVELGGGPGAGSLQPLALEGSLQKRGIVEQCCTSICSLYQLENYCN
+```
+
+To find the closest homolog to this protein, copy the sequence (including the header) and go to [NCBI BLAST](https://www.ncbi.nlm.nih.gov). Follow these steps:
+1. Click on `BLAST` on the right under `Popular Resources`.
+2. Click on `Protein BLAST` and paste the sequence into the "Enter Query Sequence" field.
+3. Click `BLAST` to start the search. 
+
+After a few minutes, examine the results against NCBI's protein database (NR).
+
+## Quiz 1: BLAST Results
+
+<div id="quiz1" class="quiz"></div>
+<button id="submit1">Submit Quiz</button>
+<div id="results1" class="output"></div>
+<script>
+quizContainer1 = document.getElementById('quiz1');
+resultsContainer1 = document.getElementById('results1');
+submitButton1 = document.getElementById('submit1');
+
+myQuestions1 = [
+  {
+    question: "What is the closest homolog in the `NR` database according to the BLASTP search?",
+    answers: {
+      a: "Chlorophyllide a oxygenase (CAO) of *Arabidopsis thaliana*",
+      b: "CSD of *Apis mellifera*",
+      c: "Insulin of *Homo sapiens*",
+      d: "I don't know"
+    },
+    correctAnswer: "c"
+  },
+  {
+    question: "What e-value and what percent identity do you get for the best hitting protein?",
+    answers: {
+      a: "9e-74 and 100 %",
+      b: "9e-74 and 226",
+      c: "153 and 226",
+      d: "153 and 100 %"
+    },
+    correctAnswer: "a"
+  },
+  {
+    question: "You used the `blastp` algorithm for your search. Why is that the right choice here?",
+    answers: {
+      a: "I used a protein sequence to query a DNA database.",
+      b: "I used a protein sequence to query a protein database.",
+      c: "I used a DNA sequence to query a protein database.",
+      d: "I used a DNA sequence to query a DNA database."
+    },
+    correctAnswer: "b"
+  }
+];
+
+buildQuiz(myQuestions1, quizContainer1);
+submitButton1.addEventListener('click', function() {showResults(myQuestions1, quizContainer1, resultsContainer1);});
+</script>
+
+---
+
+## Step 2: Retrieve Homologous Sequences
+Next, we will retrieve closely related homologous sequences for our query protein using [shoot.bio](https://shoot.bio). This tool allows quick searches of protein sequences against a massive database.
+
+After the shoot search, you should see a phylogenetic tree displaying various copies of homologous proteins from different organisms. 
+1. Click on "Export Sequences" to export the sequences to a file. 
+2. Load this file into R as we proceed with comparative genomic analyses.
+
+## Quiz 2: Homologous Sequences Analysis
+
+<div id="quiz2" class="quiz"></div>
+<button id="submit2">Submit Quiz</button>
+<div id="results2" class="output"></div>
+<script>
+quizContainer2 = document.getElementById('quiz2');
+resultsContainer2 = document.getElementById('results2');
+submitButton2 = document.getElementById('submit2');
+
+myQuestions2 = [
+  {
+    question: "What are the most closely related proteins to your `query` according to the tree?",
+    answers: {
+      a: "Homo_sapiens_F8WCM5_INSR2, Bos_taurus_P01317_INS, and Canis_lupus_P01321_INS",
+      b: "Bos_taurus_P07455_IGF1, Gorilla_gorilla_G3QQH7, and Homo_sapiens_P05019_IGF1",
+      c: "Homo_sapiens_P01308_INS, Gorilla_gorilla_Q6YK33_INS, and Pan_troglodytes_P30410_INS",
+      d: "I don't know!"
+    },
+    correctAnswer: "c"
+  },
+  {
+    question: "What organisms are featured in the phylogenetic tree?",
+    answers: {
+      a: "Vertebrates (Fish, Mammals, Amphibians, Birds)",
+      b: "Plants (Monocotyledons and Dicotyledons)",
+      c: "Archae and Bacteria",
+      d: "Invertebrates (Insects and other Arthropods)"
+    },
+    correctAnswer: "a"
+  },
+  {
+    question: "What does the length of the branches in the phylogenetic tree represent?",
+    answers: {
+      a: "The evolutionary distance between the sequences.",
+      b: "The number of sequences in the dataset.",
+      c: "The time of divergence.",
+      d: "The order of the sequences."
+    },
+    correctAnswer: "a"
+  }
+];
+
+buildQuiz(myQuestions2, quizContainer2);
+submitButton2.addEventListener('click', function() {showResults(myQuestions2, quizContainer2, resultsContainer2);});
+</script>
+
+---
+
+
+
+
+## Step 3: Analyzing the Data in R
+Now we will load our sequences into R for further analysis. 
+
+```{r install-packages, message=FALSE}
+# Install necessary libraries (uncomment if not installed)
+# install.packages("seqinr")
+# install.packages("UniprotR")
+# install.packages("bio3d")
+# install.packages("dplyr")
+# install.packages("tidyr")
+# install.packages("gplots")
+# install.packages("ggplot2")
+# BiocManager::install("msa")
+# BiocManager::install("ggtree")
+
+```
+
+```{r load-libraries, message=FALSE}
+library(seqinr)     # For protein analysis
+library(UniprotR)   # For protein information retrieval
+library(msa)        # For multiple sequence alignment
+library(ggplot2)    # For creating plots
+library(dplyr)      # For data manipulation
+library(tidyr)      # For data manipulation
+library(ggtree)     # For visualizing phylogenetic trees
+library(bio3d)      # For conservation analyses
+library(gplots)     # For conservation analyses
+library(ape)        # For phylogenetic analyses
+```
+
+```{r read-sequences}
+# Load the sequences from the file
+sequences <- "/Users/lukas/sciebo/Lehre/Bioinformatics1/WiSe25/practical/shoot_tree_query_sequences.txt"
+mySequences <- readAAStringSet(sequences)
+
+# Create a data frame with protein lengths and IDs
+protein_info <- data.frame(id = names(mySequences), length = width(mySequences)) %>% 
+  subset(id != "NP_000198.1_INS__ORGANISM_HOMO_SAPIENS___GENEID_3630_") %>% 
+  separate(id, c("genus", "species", "protein", "name"), "_", extra = "merge", remove = FALSE)
+
+# Retrieve taxonomic information
+tax <- GetNamesTaxa(protein_info$protein)
+protein_info2 <- merge(protein_info, tax, by.x = "protein", by.y = "Entry", all.x = TRUE) %>%
+  subset(Protein.names != "deleted") %>% 
+  select(-Gene.Names..synonym.,-Gene.Names..ordered.locus.,-Gene.Names..ORF., -Virus.hosts)
+
+## don't mind the following error
+### [1] "Bad request. The resource you requested doesn't exist or There is a problem with your input."
+
+# Extract differen taxonomy levels of the different organisms for plotting
+## class
+protein_info2$class <- protein_info2$Taxonomic.lineage %>% 
+  gsub(x = ., ".*\\, (.*?) \\(class\\).*", "\\1")
+## order
+protein_info2$order <- protein_info2$Taxonomic.lineage %>% 
+  gsub(x = ., ".*\\, (.*?) \\(order\\).*", "\\1")
+
+
+```
+
+## Step 4: Visualizing the Data
+
+### Step 4.1: Bar Plot of Protein Lengths
+Now we will create a bar plot that displays the lengths of the proteins for each organism.
+
+```{r barplot, fig.width=15}
+# Create a bar plot of protein lengths by organism
+ggplot(protein_info2, aes(x = protein, y = length, fill = class)) +
+  geom_bar(stat = "identity") +
+  xlab("Protein accession (UniProt)")+
+  facet_grid(~ genus, scales = "free_x", space = "free_x",switch = "x") +
+  theme(legend.position = "bottom")+
+  theme(axis.text.x=element_text(angle=90, hjust=1))
+  
+```
+
+As you see, there are several proteins from each species in your data. This has 2 reasons: 
+1. Some species have several copies of Insulin (or more precisely insulin-like growth factors)
+2. Some proteins have redundant entries in the database. 
+
+## Quiz 3: Bar Plot Analysis
+
+<div id="quiz3" class="quiz"></div>
+<button id="submit3">Submit Quiz</button>
+<div id="results3" class="output"></div>
+<script>
+quizContainer3 = document.getElementById('quiz3');
+resultsContainer3 = document.getElementById('results3');
+submitButton3 = document.getElementById('submit3');
+
+myQuestions3 = [
+  {
+    question: "What can you infer about the lengths of the proteins across different organisms from the bar plot?",
+    answers: {
+      a: "All organisms have proteins of similar lengths.",
+      b: "There is significant variation in protein lengths among the organisms.",
+      c: "Only one organism has a length variation.",
+      d: "I don't know!"
+  },
+      correctAnswer: "b"
+  },
+  {
+    question: "Which organism has the shortest sequence?",
+    answers: {
+      a: "Homo (Primates)",
+      b: "Pan (Primates)",
+      c: "Xenopus (Amphibia)",
+      d: "I don't know!"
+  },
+    correctAnswer: "c"
+  },
+  {
+    question: "How many human protein accessions are in your data?",
+    answers: {
+      a: "1",
+      b: "3",
+      c: "5",
+      d: "7"
+  },
+    correctAnswer: "d" 
+  }
+];
+
+buildQuiz(myQuestions3, quizContainer3);
+submitButton3.addEventListener('click', function() {showResults(myQuestions3, quizContainer3, resultsContainer3);});
+</script>
+
+---
+
+
+We will focus on the actual Insulin protein, which - in humans - is 110 amino acids long. So, we will extract all proteins from our data that fall roughly in that range, assuming we capture all of the homologous Insulin proteins from the different species (excluding the very short *Xenopus* protein). We fill subset our data to proteins between 80 to 120 amino acids long. 
+
+```{r subset-lengths}
+# Subset proteins between 80 and 120 amino acids
+protein_info_subset <- protein_info2 %>% subset(length > 80 & length < 120)
+# subset the sequences to contain only the proteins between 80 to 120 aa long
+mySequences_subset <- mySequences[protein_info_subset$id]
+```
+
+### Step 4.2: Calculate and Plot the Consensus Sequence
+Next, we will perform multiple sequence alignment and generate a consensus sequence for our proteins.
+
+```{r multiple-sequence-alignment}
+# use the ClustalW algorithm for multiple sequence alignment
+myFirstAlignment <- msa(mySequences_subset, method = "ClustalW")
+
+# print the complete alignment
+print(myFirstAlignment, show = "complete")
+
+# calculate a consensus sequence of the alignment. 
+msaConsensusSequence(myFirstAlignment)
+```
+
+### Step 4.3: Phylogenetic Analysis
+Now we will calculate the distances between the aligned sequences and create a phylogenetic tree. The phylogenetic tree will be calculates using the "Neighbor-Joining" Algortithm.
+
+```{r phylogenetic-tree}
+d <- myFirstAlignment %>% 
+        msaConvert(., type = "seqinr::alignment") %>%     # convert the alignment into a format that can be read by the dist.alignment function in the next row
+        dist.alignment(., "similarity")                   # calculate the pairwise similarity between each two sequences in the alignment
+
+nj.tree <- ape::nj(d)     # calculate a phylogenetic tree based on the calculated similarities (here, we apply the neighbor joining algorithm)
+plot(nj.tree, main = "Phylogenetic Tree of Insulin Sequences")        #plot the tree
+```
+
+
+
+### Step 4.4: Enhanced Phylogenetic Tree Visualization
+We can enhance our tree visualization further using `ggtree`. Here, you will add annotations to the tree to show differences in protein length and illustrate to which order of animals a given protein belongs to. This will drastically increase the information content of your plot. 
+
+```{r ggtree-visualization}
+t <- ggtree(nj.tree) +       # create the basic plot of the tree with ggtree in the object t
+  xlim_tree(c(0, .5))        # expand the x-axis limits of the tree to not trim the tip labels when plotting
+
+protein_info_reordered <- protein_info_subset %>% select(id, everything())     # reorder the columns in the protein_info data frame so that the information can be added to the tree object "t".
+protein_info_reordered$nice_label <- paste0(protein_info_reordered$genus," ",protein_info_reordered$species, " (", protein_info_reordered$protein,")") # create a new column with a nice label containing the genus name, the species name and the protein accession.
+t_data <- t %<+% protein_info_reordered                                        # add the protein_info data to the tree object and create a new tree object t_data
+
+t_data + 
+  geom_tippoint(aes(size = length, col = order)) +    
+  geom_tiplab(aes(label = nice_label),cex = 3, offset = .01)
+```
+
+Now, you have created a publication-ready figure of the phylogenetic relationship of insulin proteins in different vertebrate species. Your tree illustrates different taxonomic groups, diversity in protein length, copy number variations and more. 
+Try illustrating the tree but showing the taxonomic Class instead of the Order as the color of the dots. Hint: You need to adjust the `col=` parameter.
+
+## Quiz 4: Phylogenetic Tree
+
+<div id="quiz4" class="quiz"></div>
+<button id="submit4">Submit Quiz</button>
+<div id="results4" class="output"></div>
+<script>
+quizContainer4 = document.getElementById('quiz4');
+resultsContainer4 = document.getElementById('results4');
+submitButton4 = document.getElementById('submit4');
+
+myQuestions4 = [
+  {
+    question: "What does the phylogenetic tree suggest about the evolutionary relationships between the proteins from primates and rodents?",
+    answers: {
+      a: "All proteins are equally related.",
+      b: "The primate proteins are more closely related to other primate proteins than to rodent proteins.",
+      c: "There is no relation among the proteins.",
+      d: "I don't know!"
+    },
+    correctAnswer: "b"
+  },
+  {
+    question: "Which species appears to be the most closely related to *Homo sapiens* based on the tree?",
+    answers: {
+      a: "*Pan troglodytes*",
+      b: "*Gorilla gorilla*",
+      c: "*Canis lupus*",
+      d: "I don't know!"
+    },
+    correctAnswer: "a"  
+  },
+    {
+    question: "In which taxonomic group has the Insulin gene been duplicated ancestrally?",
+    answers: {
+      a: "Mammals",
+      b: "Rodents",
+      c: "Birds",
+      d: "Fish"
+    },
+    correctAnswer: "b"  
+  },
+    {
+    question: "Which species has the shortest insulin protein in this phylogeny?",
+    answers: {
+      a: "Bos taurus",
+      b: "Human",
+      c: "Gallus gallus",
+      d: "I don't know"
+    },
+    correctAnswer: "b"  
+  },
+    {
+    question: "Is dog insulin more similar to human or to cow insulin?",
+    answers: {
+      a: "Cow",
+      b: "Human",
+      c: "Equally distantly related to both",
+      d: "I don't know"
+    },
+    correctAnswer: "b"  
+  }
+];
+
+
+buildQuiz(myQuestions4, quizContainer4);
+submitButton4.addEventListener('click', function() {showResults(myQuestions4, quizContainer4, resultsContainer4);});
+</script>
+
+---
+
+
+### Step 4.5: Conservation Analysis
+Next, we will assess the conservation of the sequences across different positions in the alignment. 
+
+```{r conservation-analysis}
+
+cons <- myFirstAlignment %>%
+  msaConvert(., type = "bio3d::fasta") %>%        # convert the alignment object to a format that the conserv() function understands
+  conserv()                                       # run the conserv function
+
+cons.df <- data.frame(position = 1:length(cons),  # create a data frame with column 1 showing the position in the alignment and
+                      conservation = cons)        # column 2 giving the conservation scores
+
+ggplot(cons.df, aes(x = position, y = conservation)) + # plot the conservation scores for each position in the alignment
+  geom_point() +                                       # plot a dot for each position and the conservation score
+  geom_smooth(span = 0.2)                              # add a smoothened line averaging over multiple data points
+```
+
+
+## Quiz 5: Phylogenetic Tree
+
+<div id="quiz5" class="quiz"></div>
+<button id="submit5">Submit Quiz</button>
+<div id="results5" class="output"></div>
+<script>
+quizContainer5 = document.getElementById('quiz5');
+resultsContainer5 = document.getElementById('results5');
+submitButton5 = document.getElementById('submit5');
+
+myQuestions5 = [
+  {
+    question: "At which regions are the sequences highly conserved?",
+    answers: {
+      a: "At the beginning of the sequence between positions 1 to 30.",
+      b: "In two regions, once between positions ca. 30-50 and then again between 95 and 110.",
+      c: "At random positions in the alignment.",
+      d: "I don't know!"
+    },
+    correctAnswer: "b"  
+  },
+  {
+    question: "Why is it important to identify conserved regions in protein sequences?",
+    answers: {
+      a: "They may be crucial for the protein's function.",
+      b: "All regions are equally important.",
+      c: "Conserved regions have no relevance.",
+      d: "I don't know!"
+    },
+    correctAnswer: "a"
+  }
+];
+buildQuiz(myQuestions5, quizContainer5);
+submitButton5.addEventListener('click', function() {showResults(myQuestions5, quizContainer5, resultsContainer5);});
+</script>
+
+---
+
+
+As a final task, I ask you to search the web for the term "preproinsulin" and try to find an explanation regarding which parts are highly conserved and which parts are less conserved in the insulin protein! 
+
+# Conclusion
+In this notebook, you have learned how to conduct a bioinformatics analysis of homologous protein sequences. We performed searches using BLAST, retrieved related sequences using shoot.bio, retrieved data from UniProt, analyzed all of this in R, and visualized our findings. Please ensure that you review each quiz for comprehension and clarify any uncertainties.
+
